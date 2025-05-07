@@ -1,0 +1,7 @@
+# slurm log file
+*.out
+*.err
+
+# heavy file
+*.gif
+*.mat

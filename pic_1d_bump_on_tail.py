@@ -1,4 +1,5 @@
-import argparse
+import argparse, os
+from scipy.io import savemat
 from src.PIC import PIC
 from src.dist import BumpOnTail1D
 from src.util import (
@@ -18,7 +19,7 @@ def parsing():
     parser.add_argument("--num_mesh", type = int, default = 1000)
     parser.add_argument("--method", type = str, default = "leapfrog", choices=["midpoint","leapfrog", "verlet", "implicit"])
     parser.add_argument("--solver", type=str, default="Gauss", choices=["SOR", "Gauss"])
-    parser.add_argument("--interpol", type = str, default = "CIC", choices=["CIC", "TSC"])
+    parser.add_argument("--interpol", type = str, default = "TSC", choices=["CIC", "TSC"])
     parser.add_argument("--t_min", type = float, default = 0)
     parser.add_argument("--t_max", type = float, default = 50.0)
     parser.add_argument("--dt", type = float, default = 0.05)
@@ -30,7 +31,7 @@ def parsing():
     parser.add_argument("--a", type=float, default=0.2)
     parser.add_argument("--v0", type=float, default=3.0)
     parser.add_argument("--sigma", type=float, default=0.5)
-    parser.add_argument("--use_animation", type = bool, default = True)
+    parser.add_argument("--use_animation", type = bool, default = False)
     parser.add_argument("--plot_freq", type = int, default = 50)
     parser.add_argument("--save_dir", type = str, default = "./result/")
     parser.add_argument("--simcase", type=str, default="bump-on-tail", choices = ["two-stream", "bump-on-tail"])
@@ -79,3 +80,24 @@ if __name__ == "__main__":
     if args['use_animation']:
         generate_bump_on_tail_gif(snapshot, args['save_dir'], "{}_simulation_{}_{}.gif".format(args['simcase'], args['interpol'], args['method']), 0, args['L'], -10.0, 10.0, args['plot_freq'], h_idx)
         generate_bump_on_tail_dist_gif(snapshot, args['save_dir'], "{}_simulation_dist_{}_{}.gif".format(args['simcase'], args['interpol'], args['method']), 0, args['L'], -10.0, 10.0, args['plot_freq'], h_idx)
+        
+    mdic = {
+        "snapshot": snapshot,
+        "N": args["num_particle"],
+        "N_mesh": args["num_mesh"],
+        "n0": args["n0"],
+        "L": args["L"],
+        "dt": args["dt"],
+        "tmin": args["t_min"],
+        "tmax": args["t_max"],
+        "v0": args['v0'],
+        "n_mode":args['n_mode'],
+        "A":args['A'],
+        "H": E,
+    }
+
+    # save data
+    if not os.path.exists('./data/bump-on-tail'):
+        os.makedirs("./data/bump-on-tail")
+    
+    savemat(file_name = os.path.join("./data/bump-on-tail", "{}_{}_N_{}_Nm_{}_dt_{}.mat".format(args["method"], args['interpol'], args['num_particle'], args['num_mesh'], args['dt'])), mdict=mdic, do_compression=True)

@@ -1,6 +1,5 @@
 import numpy as np
 import scipy as sp
-from tqdm.auto import tqdm
 from typing import Literal, Optional
 from src.util import compute_hamiltonian
 from src.solve import Gaussian_Elimination_Improved, SOR, Jacobi
@@ -294,7 +293,7 @@ class PIC:
         KE_list.append(KE)
         PE_list.append(PE)
 
-        for i in tqdm(range(Nt), 'PIC simulation process'):
+        for i in range(Nt):
             self.update_motion()
 
             pos_list.append(np.copy(self.x))

@@ -11,12 +11,12 @@
 #SBATCH --error=job_two_stream.err
 #SBATCH --output=job_two_stream.out
 
-srun --ntasks=1 --exclusive --cpus-per-task=4 --mem-per-cpu=4G python3 pic_1d_two_stream.py --num_mesh 100 &
 srun --ntasks=1 --exclusive --cpus-per-task=4 --mem-per-cpu=4G python3 pic_1d_two_stream.py --num_mesh 200 &
 srun --ntasks=1 --exclusive --cpus-per-task=4 --mem-per-cpu=4G python3 pic_1d_two_stream.py --num_mesh 400 &
 srun --ntasks=1 --exclusive --cpus-per-task=4 --mem-per-cpu=4G python3 pic_1d_two_stream.py --num_mesh 800 &
+srun --ntasks=1 --exclusive --cpus-per-task=4 --mem-per-cpu=4G python3 pic_1d_two_stream.py --num_mesh 1000 &
+srun --ntasks=1 --exclusive --cpus-per-task=4 --mem-per-cpu=4G python3 pic_1d_two_stream.py --dt 0.02 &
+srun --ntasks=1 --exclusive --cpus-per-task=4 --mem-per-cpu=4G python3 pic_1d_two_stream.py --dt 0.05 &
 srun --ntasks=1 --exclusive --cpus-per-task=4 --mem-per-cpu=4G python3 pic_1d_two_stream.py --dt 0.1  &
-srun --ntasks=1 --exclusive --cpus-per-task=4 --mem-per-cpu=4G python3 pic_1d_two_stream.py --dt 0.25 &
 srun --ntasks=1 --exclusive --cpus-per-task=4 --mem-per-cpu=4G python3 pic_1d_two_stream.py --dt 0.5  &
-srun --ntasks=1 --exclusive --cpus-per-task=4 --mem-per-cpu=4G python3 pic_1d_two_stream.py --dt 1.0  &
 wait

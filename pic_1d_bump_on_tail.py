@@ -22,7 +22,7 @@ def parsing():
     parser.add_argument("--interpol", type = str, default = "TSC", choices=["CIC", "TSC"])
     parser.add_argument("--t_min", type = float, default = 0)
     parser.add_argument("--t_max", type = float, default = 50.0)
-    parser.add_argument("--dt", type = float, default = 0.05)
+    parser.add_argument("--dt", type = float, default = 0.01)
     parser.add_argument("--L", type = float, default = 50)
     parser.add_argument("--n0", type = float, default = 1.0)
     parser.add_argument("--gamma", type = float, default = 5.0)
@@ -31,9 +31,9 @@ def parsing():
     parser.add_argument("--a", type=float, default=0.2)
     parser.add_argument("--v0", type=float, default=3.0)
     parser.add_argument("--sigma", type=float, default=0.5)
+    parser.add_argument("--CFL", type=bool, default=False)
     parser.add_argument("--use_animation", type = bool, default = False)
     parser.add_argument("--plot_freq", type = int, default = 50)
-    parser.add_argument("--save_dir", type = str, default = "./result/")
     parser.add_argument("--simcase", type=str, default="bump-on-tail", choices = ["two-stream", "bump-on-tail"])
     args = vars(parser.parse_args())
     return args
@@ -41,6 +41,11 @@ def parsing():
 if __name__ == "__main__":
 
     args = parsing()
+    
+    savedir = os.path.join("./result/bump-on-tail", "{}_{}_N_{}_Nm_{}_dt_{}".format(args["method"], args['interpol'], args['num_particle'], args['num_mesh'], args['dt']))
+    
+    if not os.path.exists(savedir):
+        os.makedirs(savedir)
 
     # Initial distribution: Bump-On-Tail distribution
     dist = BumpOnTail1D(a = args['a'], v0 = args['v0'], sigma = args['sigma'], n_samples=args['num_particle'], L = args['L'])
@@ -61,6 +66,7 @@ if __name__ == "__main__":
         gamma=args["gamma"],
         simcase=args["simcase"],
         init_dist=dist,
+        CFL = args['CFL']
     )
 
     snapshot, E, KE, PE = sim.solve()
@@ -68,18 +74,18 @@ if __name__ == "__main__":
     h_idx = dist.high_indx
 
     # plot pic simulation figure
-    generate_bump_on_tail_snapshot(snapshot[:,-1], args['save_dir'], "{}_snapshot_{}_{}.png".format(args['simcase'], args['interpol'], args['method']), xmin = 0, xmax = args['L'], vmin = -10.0, vmax = 10.0, high_electron_indice=h_idx)
-    generate_bump_on_tail_figure(snapshot, args['save_dir'], "{}_evolution_{}_{}.png".format(args['simcase'], args['interpol'], args['method']), xmin = 0, xmax = args['L'], vmin = -10.0, vmax = 10.0, high_electron_indice=h_idx)
-    generate_hamiltonian_analysis(args['t_max'], E, KE, PE, args['save_dir'], "{}_hamiltonian_{}_{}.png".format(args['simcase'], args['interpol'], args['method']))
+    generate_bump_on_tail_snapshot(snapshot[:,-1], savedir, "{}_snapshot_{}_{}.png".format(args['simcase'], args['interpol'], args['method']), xmin = 0, xmax = args['L'], vmin = -10.0, vmax = 10.0, high_electron_indice=h_idx)
+    generate_bump_on_tail_figure(snapshot, savedir, "{}_evolution_{}_{}.png".format(args['simcase'], args['interpol'], args['method']), xmin = 0, xmax = args['L'], vmin = -10.0, vmax = 10.0, high_electron_indice=h_idx)
+    generate_hamiltonian_analysis(args['t_max'], E, KE, PE, savedir, "{}_hamiltonian_{}_{}.png".format(args['simcase'], args['interpol'], args['method']))
 
     # plot distribution
-    generate_distribution_snapshot(snapshot[:,-1], args["save_dir"],"{}_snapshot_dist_{}_{}.png".format(args['simcase'], args['interpol'], args['method']), xmin = 0, xmax = args['L'], vmin = -10.0, vmax = 10.0)
-    generate_distribution_figure(snapshot, args["save_dir"],"{}_evolution_dist_{}_{}.png".format(args['simcase'], args['interpol'], args['method']), xmin = 0, xmax = args['L'], vmin = -10.0, vmax = 10.0)
-    generate_v_distribution_figure(snapshot, args["save_dir"],"{}_evolution_v_dist_{}_{}.png".format(args['simcase'], args['interpol'], args['method']), vmin = -10.0, vmax = 10.0)
+    generate_distribution_snapshot(snapshot[:,-1], savedir, "{}_snapshot_dist_{}_{}.png".format(args['simcase'], args['interpol'], args['method']), xmin = 0, xmax = args['L'], vmin = -10.0, vmax = 10.0)
+    generate_distribution_figure(snapshot, savedir, "{}_evolution_dist_{}_{}.png".format(args['simcase'], args['interpol'], args['method']), xmin = 0, xmax = args['L'], vmin = -10.0, vmax = 10.0)
+    generate_v_distribution_figure(snapshot, savedir,"{}_evolution_v_dist_{}_{}.png".format(args['simcase'], args['interpol'], args['method']), vmin = -10.0, vmax = 10.0)
     
     if args['use_animation']:
-        generate_bump_on_tail_gif(snapshot, args['save_dir'], "{}_simulation_{}_{}.gif".format(args['simcase'], args['interpol'], args['method']), 0, args['L'], -10.0, 10.0, args['plot_freq'], h_idx)
-        generate_bump_on_tail_dist_gif(snapshot, args['save_dir'], "{}_simulation_dist_{}_{}.gif".format(args['simcase'], args['interpol'], args['method']), 0, args['L'], -10.0, 10.0, args['plot_freq'], h_idx)
+        generate_bump_on_tail_gif(snapshot, savedir, "{}_simulation_{}_{}.gif".format(args['simcase'], args['interpol'], args['method']), 0, args['L'], -10.0, 10.0, args['plot_freq'], h_idx)
+        generate_bump_on_tail_dist_gif(snapshot, savedir, "{}_simulation_dist_{}_{}.gif".format(args['simcase'], args['interpol'], args['method']), 0, args['L'], -10.0, 10.0, args['plot_freq'], h_idx)
         
     mdic = {
         "snapshot": snapshot,

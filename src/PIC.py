@@ -29,6 +29,7 @@ class PIC:
         interpol: Literal["CIC", "TSC"] = "CIC",
         simcase: Literal["two-stream", "bump-on-tail"] = "two-stream",
         init_dist: Optional[BasicDistribution] = None,
+        CFL:bool = False,
     ):
 
         # setup
@@ -40,6 +41,7 @@ class PIC:
         self.tmin = tmin            # minimum time
         self.tmax = tmax            # maximum time
         self.gamma = gamma          # parameters for solving linear equation of variant form of Tri-diagonal matrix
+        self.CFL = CFL
 
         # particle information
         self.dx = L / N_mesh
@@ -104,7 +106,7 @@ class PIC:
             self.v *= (1 + self.A * np.sin(2 * np.pi * self.n_mode * self.x / self.L))  # add perturbation
 
         # check CFL condition for stability
-        if self.dt > 2 / np.sqrt(self.N / self.L):
+        if self.dt > 2 / np.sqrt(self.N / self.L) and self.CFL:
             self.dt = 2 / np.sqrt(self.N / self.L)
 
     def generate_grad(self):
